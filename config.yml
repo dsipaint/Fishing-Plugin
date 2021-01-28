@@ -1,28 +1,38 @@
 #optional settings for a boss-bar title at the top
 event-title-name: "Fishing Event" #optional, specifying this will generate a bossbar, leaving it out won't
-event-title-colour: "PURPLE" #required if event-title-name is specified
+event-title-colour: "PURPLE" #required if event-title-name is specified (supported colours: blue, green, pink, purple, red, white, yellow)
 
 #optional messages to appear in chat at the start and end of events
 event-start-message: "It's time to fish >:D" #optional
 event-end-message: "No more fishing :(" #optional
 
 #settings for when to schedule regular events- default values are event-frequency="1d", event-duration="1h"
+#format is a positive number with the letter s, m, h, or d afterwards
 #how often to schedule an event:
-event-frequency: "60s" #required
+event-frequency: "1d" #required
 
-#how long an event should last for (must be less than event-frequency, or default values are used):
-event-duration: "30s" #required
+#how long an event should last for (must be less than event-frequency, or default values for event-frequency and event-duration are used):
+#format is a positive number with the letter s, m, h, or d afterwards
+event-duration: "1h" #required
 
-#what time to schedule the first event after the plugin is loaded, specified in UTC time. The first event occurs at the next occurrence of this time
+#what time to schedule the first event after the plugin is loaded, specified in UTC 24-hour time. The first event occurs at the next occurrence of this time
 #on a clock e.g. if it is 21:00 UTC, event-start-time="22:00" will schedule the first event for today at 22:00, but event-start-time="20:00" will schedule the
 #first event for tomorrow at 20:00
-event-start-time: "01:50" #optional, will start immediately if not specified
+event-start-time: "00:00" #optional, will start immediately if not specified
 
-#optional, plugin will use only custom fish if there are any, or only normal fish if there aren't. I may change this so that not only custom fish are used if there are any, or so that exclusively custom fish can be chosen if there are any
-# e.g. exclusively-custom-fish: true
+#optional, plugin will use only custom fish/loot if there are any, or only normal fish/loot if there aren't
 fish:
-   - name: Tuna
-     minlength: 12
-     maxlength: 20
-     rarity: 0.5
-     item: salmon
+   #a fish needs all of the following, or it will not be added
+   - name: Tuna #colour/formatting codes are supported
+     minlength: 12 #any positive double
+     maxlength: 20 #any positive double
+     rarity: 0.5 #must be a double between 0 and 1 inclusive, going outside of this causes a default value of 0.5 to be used
+     item: salmon #the id of the ingame item you want to use for the fish
+     description: "definitely not a government spy" #optional, adds a description to the item lore
+     
+loot:
+   #a loot (basically any item that doesn't have lengths) needs all of the following, or it will not be added
+   - name: "Rommie Redger's Boot"
+     rarity: 1
+     item: leather_boots
+     description: "Rommie redgies!!!" #also optional, like the fish

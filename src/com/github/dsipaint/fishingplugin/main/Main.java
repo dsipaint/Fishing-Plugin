@@ -13,6 +13,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import com.github.dsipaint.fishingplugin.event.EventCommence;
+import com.github.dsipaint.fishingplugin.main.fishproducts.Fish;
+import com.github.dsipaint.fishingplugin.main.fishproducts.FishProduct;
+import com.github.dsipaint.fishingplugin.main.fishproducts.Loot;
 
 public class Main extends JavaPlugin
 {
@@ -33,7 +36,7 @@ public class Main extends JavaPlugin
 		externalconfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "config.yml"));
 		
 		//load in fish if any are specified
-		Fish.fishes = new ArrayList<Fish>();
+		Fish.fishandloot = new ArrayList<FishProduct>();
 		if(externalconfig.getList("fish") != null)
 		{
 			getLogger().info("Parsing fish");
@@ -49,12 +52,44 @@ public class Main extends JavaPlugin
 							Double.parseDouble(fishobj.get("rarity").toString()) >= 0 && Double.parseDouble(fishobj.get("rarity").toString()) <= 1 ? Double.parseDouble(fishobj.get("rarity").toString()) : 0.5, //rarity between 0 and 1, or else 0.5 used
 							Material.getMaterial(fishobj.get("item").toString().toUpperCase(), false) != null ? Material.getMaterial(fishobj.get("item").toString().toUpperCase(), false) : Material.COD); //default to cod if material not found
 					
+					//if description exists, add description
+					if(fishobj.get("description") != null)
+						currentfish.appendLore(Chat.format(fishobj.get("description").toString()));
+					
 					getLogger().info("Parsed fish " + currentfish.getName());
-					Fish.fishes.add(currentfish);
+					Fish.fishandloot.add(currentfish);
 				}
 				catch(Exception e)
 				{
 					getLogger().warning("Invalid fish- skipping...");
+				}
+				
+			});
+		}
+		
+		if(externalconfig.getList("loot") != null)
+		{
+			getLogger().info("Parsing loot");
+			externalconfig.getList("loot").forEach(loot ->
+			{
+				Map<String, ?> lootobj = (Map<String, ?>) loot;
+				try
+				{
+					Loot currentloot = new Loot(
+							lootobj.get("name").toString(),
+							Double.parseDouble(lootobj.get("rarity").toString()) >= 0 && Double.parseDouble(lootobj.get("rarity").toString()) <= 1 ? Double.parseDouble(lootobj.get("rarity").toString()) : 0.5, //rarity between 0 and 1, or else 0.5 used
+							Material.getMaterial(lootobj.get("item").toString().toUpperCase(), false) != null ? Material.getMaterial(lootobj.get("item").toString().toUpperCase(), false) : Material.COD); //default to cod if material not found
+					
+					//if description exists, add description
+					if(lootobj.get("description") != null)
+						currentloot.appendLore(Chat.format(lootobj.get("description").toString()));
+					
+					getLogger().info("Parsed loot " + currentloot.getName());
+					Fish.fishandloot.add(currentloot);
+				}
+				catch(Exception e)
+				{
+					getLogger().warning("Invalid loot- skipping...");
 				}
 				
 			});

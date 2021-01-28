@@ -10,8 +10,8 @@ import com.github.dsipaint.fishingplugin.event.listeners.FishListener;
 import com.github.dsipaint.fishingplugin.event.listeners.PlayerJoinListener;
 import com.github.dsipaint.fishingplugin.event.listeners.WeatherListener;
 import com.github.dsipaint.fishingplugin.main.Chat;
-import com.github.dsipaint.fishingplugin.main.Fish;
 import com.github.dsipaint.fishingplugin.main.Main;
+import com.github.dsipaint.fishingplugin.main.fishproducts.Fish;
 
 public class EventCommence extends BukkitRunnable
 {
@@ -33,7 +33,7 @@ public class EventCommence extends BukkitRunnable
 		this.plugin = plugin;
 		fishlistener = new FishListener(plugin);
 		weatherlistener = new WeatherListener(plugin);
-		playerjoinlistener = new PlayerJoinListener(plugin, bossbar);
+		playerjoinlistener = new PlayerJoinListener(plugin);
 		
 		//if a title is specified, set a bossbar, otherwise don't
 		bossbar = null;
@@ -41,9 +41,9 @@ public class EventCommence extends BukkitRunnable
 		{
 			String barcolour = Main.externalconfig.getString("event-title-colour");
 			if(barcolour == null || BarColor.valueOf(barcolour.toUpperCase()) == null)
-				EventCommence.bossbar = Bukkit.createBossBar(Main.externalconfig.getString("event-title-name"), BarColor.PURPLE, BarStyle.SEGMENTED_12);
+				bossbar = Bukkit.createBossBar(Main.externalconfig.getString("event-title-name"), BarColor.PURPLE, BarStyle.SEGMENTED_12);
 			else
-				EventCommence.bossbar = Bukkit.createBossBar(Main.externalconfig.getString("event-title-name"), BarColor.valueOf(Main.externalconfig.getString("event-title-colour").toUpperCase()), BarStyle.SEGMENTED_12);
+				bossbar = Bukkit.createBossBar(Main.externalconfig.getString("event-title-name"), BarColor.valueOf(Main.externalconfig.getString("event-title-colour").toUpperCase()), BarStyle.SEGMENTED_12);
 		}
 	}
 	
@@ -51,12 +51,17 @@ public class EventCommence extends BukkitRunnable
 	{
 		plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "weather rain"); //set raining
 		plugin.getServer().getPluginManager().registerEvents(weatherlistener, plugin); //change weather back if it stops raining
-		if(!Fish.fishes.isEmpty())
+		if(!Fish.fishandloot.isEmpty())
 			plugin.getServer().getPluginManager().registerEvents(fishlistener, plugin); //add custom fishing if there are custom fish
 		
-		//set bossbar on top
-		for(Player p : Bukkit.getOnlinePlayers())
-			bossbar.addPlayer(p);
+		if(bossbar != null)
+		{
+			//set bossbar on top
+			for(Player p : Bukkit.getOnlinePlayers())
+				bossbar.addPlayer(p);
+			
+			plugin.getServer().getPluginManager().registerEvents(playerjoinlistener, plugin); //add listener for players who join during event
+		}
 		
 		//announce in chat if start message specified
 		String startmsg = Main.externalconfig.getString("event-start-message");
@@ -65,10 +70,11 @@ public class EventCommence extends BukkitRunnable
 			for(Player p : Bukkit.getOnlinePlayers())
 					p.sendMessage(Chat.format(startmsg));
 		}
-		plugin.getServer().getPluginManager().registerEvents(playerjoinlistener, plugin); //add listener for players who join during event
+		
+		plugin.getLogger().info("Fishing event started!");
 		
 		//schedule another event, define a "tick" based on event duration, and schedule event every tick, to tick boss bar/end event
 		int bossbartickfrequency = eventduration/EventBossBarTick.BOSSBAR_TICKS;
-		Main.bossbartickevent = new EventBossBarTick(plugin).runTaskTimer(plugin, 0, bossbartickfrequency); //TODO: tick event starts and ends correctly, but bar ticks down way too fast
+		Main.bossbartickevent = new EventBossBarTick(plugin).runTaskTimer(plugin, 0, bossbartickfrequency);
 	}
 }

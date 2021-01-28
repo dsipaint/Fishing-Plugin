@@ -1,5 +1,5 @@
 name: AlsFishingPlugin
 author: al
-version: 0.1
+version: 1.0
 api-version: 1.16
 main: com.github.dsipaint.fishingplugin.main.Main

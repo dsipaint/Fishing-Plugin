@@ -24,8 +24,7 @@ public class EventBossBarTick extends BukkitRunnable
 	
 	public void run()
 	{
-		EventCommence.bossbar.setProgress(progress/BOSSBAR_TICKS); //one tick is a fraction of the duration
-		progress--; //minus the time left for next tick
+		EventCommence.bossbar.setProgress(((double) progress/BOSSBAR_TICKS)); //one tick is a fraction of the duration
 		
 		//if event duration is over, time ran out, reset for next event
 		if(progress == 0)
@@ -35,7 +34,12 @@ public class EventBossBarTick extends BukkitRunnable
 			HandlerList.unregisterAll(EventCommence.playerjoinlistener);
 			HandlerList.unregisterAll(EventCommence.weatherlistener);
 			
-			EventCommence.bossbar.removeAll(); //remove all players from bossbar
+			if(EventCommence.bossbar != null)
+			{
+				EventCommence.bossbar.removeAll(); //remove all players from bossbar
+				HandlerList.unregisterAll(EventCommence.playerjoinlistener);
+			}
+			
 			plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), "weather clear"); //change weather back
 			
 			//announce in chat if end message specified
@@ -46,7 +50,12 @@ public class EventBossBarTick extends BukkitRunnable
 					p.sendMessage(Chat.format(endmsg));
 					
 			}
+			
+			plugin.getLogger().info("Fishing event ended!");
+			
 			this.cancel(); //cancel ticking event
 		}
+		
+		progress--; //minus the time left for next tick
 	}
 }

@@ -1,11 +1,13 @@
 package com.github.dsipaint.fishingplugin.event.listeners;
+import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerFishEvent.State;
 
-import com.github.dsipaint.fishingplugin.main.Fish;
 import com.github.dsipaint.fishingplugin.main.Main;
+import com.github.dsipaint.fishingplugin.main.fishproducts.Fish;
+import com.github.dsipaint.fishingplugin.main.fishproducts.FishProduct;
 
 public class FishListener implements Listener
 {
@@ -22,14 +24,11 @@ public class FishListener implements Listener
 	public void onFishCaught(PlayerFishEvent e)
 	{
 		//if no fish specified, can't use custom fish
-		if(Fish.fishes.isEmpty())
+		if(Fish.fishandloot.isEmpty())
 			return;
 		
+		//if fish is caught, replace the item
 		if(e.getState().equals(State.CAUGHT_FISH))
-		{
-			e.getCaught().remove(); //remove old fish
-			e.getPlayer().getInventory().addItem(Fish.getRandomFish().getItem()); //give a random custom fish
-			//TODO: make the fish spawn in the water and have the velocity of the old fish, to fly at the player like it's really been fished
-		}
+			((Item) e.getCaught()).setItemStack(FishProduct.getRandomFishProduct().getItem());
 	}
 }
